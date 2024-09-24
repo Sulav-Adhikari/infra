@@ -5,6 +5,10 @@ locals {
   }
 }
 
+###################
+# EBS CSI Role    #
+###################
+
 module "ebs_csi_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "5.39.1"
@@ -22,6 +26,8 @@ module "ebs_csi_irsa_role" {
 
   tags = local.tags
 }
+
+
 
 module "vpc_cni_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
@@ -118,10 +124,3 @@ module "eks" {
   access_entries = var.access_entries
 
 }
-
-
-
-
-
-
-

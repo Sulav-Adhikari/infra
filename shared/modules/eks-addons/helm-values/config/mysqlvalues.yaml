@@ -1,0 +1,36 @@
+architecture: replication  # Switch from standalone to replication
+
+auth:
+  rootPassword: "password123"  # Set the root password
+  replicationUser: "replicator"  # Replication user
+  replicationPassword: "replicator123"  # Replication user password
+  # username: "your-app-username"  # Application user
+  # password: "your-app-password"  # Application user password
+  # database: "your-database-name"  # Default database to create
+
+primary:
+  persistence:
+    enabled: true
+#    existingClaim: "primary"  # Your existing PVC for primary (optional)
+    subPath: ""
+#    storageClass: "local2"
+    annotations: {}
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    selector: {}
+
+secondary:
+  replicaCount: 1  # Number of replicas for secondary
+  automountServiceAccountToken: false
+
+  persistence:
+    enabled: true
+#    existingClaim: "secondary"  # Your existing PVC for secondary (optional)
+    subPath: ""
+#    storageClass: "local2"
+    annotations: {}
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    selector: {}

@@ -80,5 +80,41 @@ module "eks" {
 }
 
 module "eks-addons" {
-  source = "../shared/modules/eks-addons"
+  source                       = "../shared/modules/eks-addons/helm-values"
+  mysql_secrect_name           = var.mysql_secrect_name
+  persistence_enable_primary   = var.persistence_enable_primary
+  access_modes_primary         = var.access_modes_primary
+  size_primary                 = var.size_primary
+  replica_count                = var.replica_count
+  persistence_enable_secondary = var.persistence_enable_secondary
+  access_modes_secondary       = var.access_modes_secondary
+  size_secondary               = var.size_secondary
+  mysql_root_user              = var.mysql_root_user
+  mysql_root_password          = var.mysql_root_password
+  mysql_replication_password   = var.mysql_replication_password
+  mysql_replication_user       = var.mysql_replication_user
+  mysql_password               = var.mysql_password
+  service_type                 = var.service_type
+  host                         = var.host
+  db_port                      = var.db_port
+  ingress_enable               = var.ingress_enable
+  hostname                     = var.hostname
+  tls_enable                   = var.tls_enable
+  ssh_private_key_path         = var.ssh_private_key_path
+  remote_host                  = var.remote_host
+  remote_user                  = var.remote_user
+  database_name                = var.database_name
+  database_user                = var.database_user
+  database_password            = var.database_password
+  wp_admin_user                = var.wp_admin_user
+  wp_admin_password            = var.wp_admin_password
+  wp_admin_email               = var.wp_admin_email
+  wp_first_name                = var.wp_first_name
+  wp_last_name                 = var.wp_last_name
+  multisite_enable             = var.multisite_enable
+  
+  cluster_name               = module.eks.eks_cluster
+  cluster_endpoint           = module.eks.cluster_endpoint
+  certificate_authority_data = module.eks.certificate_authority_data
+
 }
