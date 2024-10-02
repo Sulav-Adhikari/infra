@@ -1,0 +1,32 @@
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+# certResolvers:
+#   staging:
+#     acme:
+#       email: devops+aij@webpoint.io
+#       storage: /data/acme.json
+#       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+#       httpChallenge:
+#         entryPoint: web
+#   production:
+#     acme:
+#       email: devops+aij@webpoint.io
+#       storage: /data/acme.json
+#       caServer: "https://acme-v02.api.letsencrypt.org/directory"
+#       httpChallenge:
+#         entryPoint: web
+
+
+
+additionalArguments:
+  - "--certificatesresolvers.production.acme.caServer=https://acme-v02.api.letsencrypt.org/directory"
+  - "--certificatesresolvers.production.acme.email=devops+aij@webpoint.io"
+  - "--certificatesresolvers.production.acme.httpChallenge.entryPoint=web"
+  - "--certificatesresolvers.production.acme.storage=/data/acme.json"
+  - "--certificatesresolvers.staging.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory"
+  - "--certificatesresolvers.staging.acme.email=devops+aij@webpoint.io"
+  - "--certificatesresolvers.staging.acme.httpChallenge.entryPoint=web"
+  - "--certificatesresolvers.staging.acme.storage=/data/acme.json"

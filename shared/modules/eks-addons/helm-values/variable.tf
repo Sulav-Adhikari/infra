@@ -1,54 +1,12 @@
 #### Mysql
+variable "mysql_root_user" {
+  description = "my sql root user"
+  type        = string
 
+}
 variable "mysql_secrect_name" {
   description = "Secrect name for mysql configuration"
   type        = string
-}
-
-variable "persistence_enable_primary" {
-  description = "enable presistence sql instance (primary and secondary)"
-  type        = bool
-}
-
-
-variable "access_modes_primary" {
-  description = "access mode for PV eg ReadWriteOnce"
-  type        = string
-
-}
-
-variable "size_primary" {
-  description = "Size of PV eg 10gi"
-  type        = string
-
-}
-
-variable "replica_count" {
-  description = "Replica Count for secondary mysql pod"
-  type        = number
-}
-
-variable "persistence_enable_secondary" {
-  description = "enable presistence sql instance (primary and secondary)"
-  type        = bool
-}
-
-
-variable "access_modes_secondary" {
-  description = "access mode for PV eg ReadWriteOnce"
-  type        = string
-
-}
-
-variable "size_secondary" {
-  description = "Size of PV eg 10gi"
-  type        = string
-
-}
-
-variable "mysql_root_user" {
-  description = "mysql root user"
-  type = string
 }
 
 variable "mysql_root_password" {
@@ -71,61 +29,9 @@ variable "mysql_password" {
   type        = string
 }
 
-#phpmyadmin
-
-variable "service_type" {
-  description = "service type"
-  type        = string
-}
-
-
-variable "host" {
-  description = "database host i.e svc for primary"
-  type        = string
-  default     = "mysql-primary"
-}
-
-variable "db_port" {
-  type    = string
-  default = "3306"
-
-}
-variable "ingress_enable" {
-  description = "enable or disable ingress"
-  type        = bool
-  default     = true
-}
-
-variable "hostname" {
-  description = "domain for phpmyadmin"
-  type        = string
-  default     = "phpmyadmin.local"
-
-}
-
-variable "tls_enable" {
-  description = "enable or disable"
-  type        = bool
-  default     = false
-}
-
 
 ### Worpress
 
-variable "remote_host" {
-  description = "The IP or hostname of the remote server"
-  type        = string
-}
-
-variable "remote_user" {
-  description = "The SSH user for the remote server"
-  type        = string
-}
-
-variable "ssh_private_key_path" {
-  description = "Path to the SSH private key for accessing the remote server"
-  type        = string
-}
 
 variable "database_name" {
   description = "The database name"
@@ -170,6 +76,12 @@ variable "wp_last_name" {
 variable "multisite_enable" {
   description = "Enable WordPress multi-site"
   type        = string
+}
+
+variable "service_type" {
+  default = "service type for wordpress instance"
+  type    = string
+
 }
 
 

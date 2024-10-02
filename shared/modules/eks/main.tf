@@ -5,8 +5,28 @@ locals {
   }
 }
 
+##############
+#  CNI ROLE  #
+##############
+
+module "vpc_cni_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "5.39.1"
+
+  role_name_prefix      = "VPC-CNI-IRSA"
+  attach_vpc_cni_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-node"]
+    }
+  }
+
+  tags = local.tags
+}
 ###################
-# EBS CSI Role    #
+#   EBS CSI Role  #
 ###################
 
 module "ebs_csi_irsa_role" {
@@ -28,54 +48,22 @@ module "ebs_csi_irsa_role" {
 }
 
 
-
-module "vpc_cni_irsa" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.39.1"
-
-  role_name_prefix      = "VPC-CNI-IRSA"
-  attach_vpc_cni_policy = true
-
-  oidc_providers = {
-    main = {
-      provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:aws-node"]
-    }
-  }
-
-  tags = local.tags
-}
-
-module "karpenter" {
-  source = "terraform-aws-modules/eks/aws//modules/karpenter"
-
-  cluster_name = module.eks.cluster_name
-
-  # EKS Fargate currently does not support Pod Identity
-  enable_irsa = true
-
-  irsa_oidc_provider_arn = module.eks.oidc_provider_arn
-
-  # Used to attach additional IAM policies to the Karpenter node IAM role
-  node_iam_role_additional_policies = {
-    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  }
-
-  tags = local.tags
-}
+###################
+#      EKS        #
+###################
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.20.0"
 
-  cluster_name                    = "${var.namespace}-${var.stage}"
-  cluster_version                 = var.eks_version
-  cluster_endpoint_private_access = true
-  cluster_endpoint_public_access = true
-  cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"]
-  cluster_security_group_id = var.cluster_security_group_id
+  cluster_name                          = "${var.namespace}-${var.stage}"
+  cluster_version                       = var.eks_version
+  cluster_endpoint_private_access       = true
+  cluster_endpoint_public_access        = true
+  cluster_endpoint_public_access_cidrs  = ["0.0.0.0/0"]
+  cluster_security_group_id             = var.cluster_security_group_id
   cluster_additional_security_group_ids = [var.cluster_security_group_id]
-  enable_irsa               = true
+  enable_irsa                           = true
   # manage_aws_auth_configmap      = true
 
 
@@ -124,3 +112,27 @@ module "eks" {
   access_entries = var.access_entries
 
 }
+
+###############
+#  karpenter  #
+###############
+
+
+module "karpenter" {
+  source = "terraform-aws-modules/eks/aws//modules/karpenter"
+
+  cluster_name = module.eks.cluster_name
+
+  # EKS Fargate currently does not support Pod Identity
+  enable_irsa = true
+
+  irsa_oidc_provider_arn = module.eks.oidc_provider_arn
+
+  # Used to attach additional IAM policies to the Karpenter node IAM role
+  node_iam_role_additional_policies = {
+    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  }
+
+  tags = local.tags
+}
+

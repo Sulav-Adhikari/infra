@@ -1,0 +1,81 @@
+externalDatabase:
+  host: mysql-primary
+  port: 3306
+  user: ${database_user}
+  password: ${database_password}
+  database: ${database_name}
+
+mariadb:
+  enabled: false
+
+wordpressUsername: ${wp_admin_user}
+wordpressPassword: ${wp_admin_password}
+wordpressEmail: ${wp_admin_email}
+wordpressFirstName: ${wp_first_name}
+wordpressLastName: ${wp_last_name}
+
+
+persistence:
+  ## @param persistence.enabled Enable persistence using Persistent Volume Claims
+  ##
+  enabled: true
+  ## @param persistence.storageClass Persistent Volume storage class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner
+  ##
+  storageClass: ${storage_class_name}
+  ## @param persistence.accessModes [array] Persistent Volume access modes
+  ##
+  accessModes:
+    - ReadWriteOnce
+  ## @param persistence.accessMode Persistent Volume access mode (DEPRECATED: use `persistence.accessModes` instead)
+  ##
+  accessMode: ReadWriteOnce
+  ## @param persistence.size Persistent Volume size
+  ##
+  size: 10Gi
+  ## @param persistence.dataSource Custom PVC data source
+  ##
+  dataSource: {}
+  ## @param persistence.existingClaim The name of an existing PVC to use for persistence
+  ##
+  existingClaim: ""
+  ## @param persistence.selector Selector to match an existing Persistent Volume for WordPress data PVC
+  ## If set, the PVC can't have a PV dynamically provisioned for it
+  ## E.g.
+  ## selector:
+  ##   matchLabels:
+  ##     app: my-app
+  ##
+  selector: {}
+  ## @param persistence.annotations Persistent Volume Claim annotations
+  ##
+  annotations: {}
+
+
+
+service:
+  type: ${service_type}
+  ports:
+    http: 80
+    https: 443
+
+# ingress:
+#   enabled: true
+#   hostname: ${database_name}.wp.np
+#   annotations:
+#     kubernetes.io/ingress.class: traefik
+#   tls: false
+
+%{ if multisite_enable == "yes" }
+extraHosts:
+  - name: test.${database_name}.wp.np
+    path: /
+
+# multisite:
+#   enable: true
+#   host: "${database_name}.wp.np"
+#   networkType: subdomain
+#   enableNipIoRedirect: false
+%{ endif }

@@ -21,6 +21,9 @@ resource "aws_subnet" "public" {
   cidr_block              = cidrsubnet(aws_vpc.this.cidr_block, 8, local.public_subnet_start + count.index)
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = var.map_public_ip_on_launch
+
+  depends_on = [aws_vpc.this]
+
 }
 
 
@@ -29,6 +32,8 @@ resource "aws_subnet" "private" {
   cidr_block        = cidrsubnet(aws_vpc.this.cidr_block, 8, count.index)
   vpc_id            = aws_vpc.this.id
   availability_zone = data.aws_availability_zones.available.names[count.index]
+
+  depends_on = [aws_vpc.this]
 }
 
 # Internet Gateway for Public Subnets
@@ -38,6 +43,7 @@ resource "aws_internet_gateway" "igw" {
   tags = {
     Name = "${var.namespace}-${var.stage}-igw"
   }
+  depends_on = [aws_vpc.this]
 }
 
 # Create a new route table for the public subnets, make it route traffic through the Internet gateway to the internet
@@ -56,6 +62,9 @@ resource "aws_route_table" "public" {
   tags = {
     Name = "${var.namespace}-${var.stage}-public-rt"
   }
+
+  depends_on = [aws_internet_gateway.igw]
+
 }
 
 # Explicitly associate the newly created route tables to the public subnets (so they don't default to the main route table)
@@ -63,6 +72,8 @@ resource "aws_route_table_association" "public" {
   count          = var.az_count
   subnet_id      = element(aws_subnet.public.*.id, count.index)
   route_table_id = aws_route_table.public.id
+
+  depends_on = [aws_subnet.public, aws_route_table.public]
 
 }
 
@@ -73,12 +84,12 @@ resource "aws_eip" "eip" {
   count = var.enable_private_net ? 1 : 0
 
   domain = "vpc"
-  depends_on = [
-    aws_internet_gateway.igw
-  ]
   tags = {
     Name = "${var.namespace}-${var.stage}-nat-eip"
   }
+  depends_on = [
+    aws_internet_gateway.igw
+  ]
 }
 
 # Create NAT Gateway
@@ -144,6 +155,7 @@ resource "aws_default_security_group" "default" {
   tags = {
     Name = "${var.namespace}-${var.stage}-default-sg"
   }
+  depends_on = [aws_vpc.this]
 
 }
 
@@ -160,6 +172,16 @@ resource "aws_security_group" "local_allow_all" {
     protocol    = "tcp"
     from_port   = 1025
     to_port     = 65535
+    cidr_blocks = [aws_vpc.this.cidr_block]
+  }
+
+  ingress {
+    description = "HTTP"
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]  # Or restrict to specific IPs
+
   }
 
   ingress {
@@ -167,7 +189,7 @@ resource "aws_security_group" "local_allow_all" {
     protocol    = "tcp"
     from_port   = 443
     to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]  # Replace with your public IP address
+    cidr_blocks = ["0.0.0.0/0"] # Replace with your public IP address
   }
 
   egress {
@@ -181,6 +203,7 @@ resource "aws_security_group" "local_allow_all" {
     Name = join("-", [var.namespace, var.stage, "local_allow", "sg"])
 
   }
+  depends_on = [aws_vpc.this]
 
 }
 
@@ -208,6 +231,7 @@ resource "aws_security_group" "allow_efs" {
   tags = {
     Name = join("-", [var.namespace, var.stage, "local_nfs", "sg"])
   }
+  depends_on = [aws_vpc.this]
 }
 
 #Allow http security group
@@ -228,6 +252,7 @@ resource "aws_security_group" "allow_http" {
   tags = {
     "Name" = "${var.namespace}-${var.stage}-allow-http-sg"
   }
+  depends_on = [aws_vpc.this]
 }
 
 resource "aws_security_group_rule" "web_access" {
@@ -239,6 +264,8 @@ resource "aws_security_group_rule" "web_access" {
   cidr_blocks       = var.http_allow_cidrs
   security_group_id = aws_security_group.allow_http.id
   description       = "Allow ${var.namespace} ${var.stage} ${element(var.http_ports, count.index)}"
+
+  depends_on = [aws_security_group.allow_http]
 
 }
 
@@ -268,5 +295,6 @@ resource "aws_security_group" "allow_ssh" {
   tags = {
     "Name" = "${var.namespace}-${var.stage}-allow-ssh-sg"
   }
+  depends_on = [aws_vpc.this]
 
 }

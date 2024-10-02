@@ -1,36 +1,104 @@
-architecture: replication  # Switch from standalone to replication
+## @param architecture MySQL architecture (`standalone` or `replication`)
+##
+architecture: replication  
 
+## MySQL Authentication parameters
+##
 auth:
-  rootPassword: "password123"  # Set the root password
-  replicationUser: "replicator"  # Replication user
-  replicationPassword: "replicator123"  # Replication user password
-  # username: "your-app-username"  # Application user
-  # password: "your-app-password"  # Application user password
-  # database: "your-database-name"  # Default database to create
+  ## @param auth.existingSecret Use existing secret for password details. The secret has to contain the keys `mysql-root-password`, `mysql-replication-password` and `mysql-password`
+  ## NOTE: When it's set the auth.rootPassword, auth.password, auth.replicationPassword are ignored.
+  ##
+  existingSecret: "sql-secrect"
 
+## @section MySQL Primary parameters
+##
 primary:
+  ## @param primary.name Name of the primary database (eg primary, master, leader, ...)
+  ##
+  name: primary
   persistence:
-    enabled: true
-#    existingClaim: "primary"  # Your existing PVC for primary (optional)
-    subPath: ""
-#    storageClass: "local2"
-    annotations: {}
-    accessModes:
-      - ReadWriteOnce
-    size: 10Gi
-    selector: {}
+     ## @param primary.persistence.enabled Enable persistence on MySQL primary replicas using a `PersistentVolumeClaim`. If false, use emptyDir
+     ##
+     enabled: true
+     ## @param primary.persistence.existingClaim Name of an existing `PersistentVolumeClaim` for MySQL primary replicas
+     ## NOTE: When it's set the rest of persistence parameters are ignored
+     ##
+     existingClaim: ""
+     ## @param primary.persistence.subPath The name of a volume's sub path to mount for persistence
+     ##
+     subPath: ""
+     ## @param primary.persistence.storageClass MySQL primary persistent volume storage Class
+     ## If defined, storageClassName: <storageClass>
+     ## If set to "-", storageClassName: "", which disables dynamic provisioning
+     ## If undefined (the default) or set to null, no storageClassName spec is
+     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+     ##   GKE, AWS & OpenStack)
+     ##
+     storageClass: "my-ebs-sc"
+     ## @param primary.persistence.annotations MySQL primary persistent volume claim annotations
+     ##
+     annotations: {}
+     ## @param primary.persistence.accessModes MySQL primary persistent volume access Modes
+     ##
+     accessModes:
+       - ReadWriteOnce
+     ## @param primary.persistence.size MySQL primary persistent volume size
+     ##
+     size: 10Gi
+     ## @param primary.persistence.selector Selector to match an existing Persistent Volume
+     ## selector:
+     ##   matchLabels:
+     ##     app: my-app
+     ##
+     selector: {}
 
+## @section MySQL Secondary parameters
+##
 secondary:
-  replicaCount: 1  # Number of replicas for secondary
+  ## @param secondary.name Name of the secondary database (eg secondary, slave, ...)
+  ##
+  name: secondary
+  ## @param secondary.replicaCount Number of MySQL secondary replicas
+  ##
+  replicaCount: 1
+  ## @param secondary.automountServiceAccountToken Mount Service Account token in pod
+  ##
   automountServiceAccountToken: false
-
+  ## @param secondary.hostAliases Deployment pod host aliases
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
   persistence:
+    ## @param secondary.persistence.enabled Enable persistence on MySQL secondary replicas using a `PersistentVolumeClaim`
+    ##
     enabled: true
-#    existingClaim: "secondary"  # Your existing PVC for secondary (optional)
+    ## @param secondary.persistence.existingClaim Name of an existing `PersistentVolumeClaim` for MySQL secondary replicas
+    ## NOTE: When it's set the rest of persistence parameters are ignored
+    ##
+    existingClaim: ""
+    ## @param secondary.persistence.subPath The name of a volume's sub path to mount for persistence
+    ##
     subPath: ""
-#    storageClass: "local2"
+    ## @param secondary.persistence.storageClass MySQL secondary persistent volume storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: "my-ebs-sc"
+    ## @param secondary.persistence.annotations MySQL secondary persistent volume claim annotations
+    ##
     annotations: {}
+    ## @param secondary.persistence.accessModes MySQL secondary persistent volume access Modes
+    ##
     accessModes:
       - ReadWriteOnce
+    ## @param secondary.persistence.size MySQL secondary persistent volume size
+    ##
     size: 10Gi
+    ## @param secondary.persistence.selector Selector to match an existing Persistent Volume
+    ## selector:
+    ##   matchLabels:
+    ##     app: my-app
+    ##
     selector: {}
