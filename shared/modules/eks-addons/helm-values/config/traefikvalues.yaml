@@ -3,6 +3,71 @@ entryPoints:
     address: ":80"
   websecure:
     address: ":443"
+
+# Enable the default Traefik Ingress class
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+
+
+# Security context for the main container
+securityContext:
+  capabilities:
+    drop: [ALL]
+  readOnlyRootFilesystem: true
+  runAsGroup: 65532
+  runAsNonRoot: true
+  runAsUser: 65532
+
+
+# Pod security context
+podSecurityContext:
+  fsGroup: 65532
+
+persistence:
+  # -- Enable persistence using Persistent Volume Claims
+  # ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+  # It can be used to store TLS certificates, see `storage` in certResolvers
+  enabled: true
+  name: traefik
+  existingClaim: ""
+  accessMode: ReadWriteOnce
+  size: 128Mi
+  storageClass: "my-ebs-sc"
+  path: /data
+  annotations: {}
+  # -- Only mount a subpath of the Volume into the pod
+  subPath: ""
+
+# Init container with proper security context
+initContainers:
+  - name: volume-permissions
+    image: busybox:latest
+    command:
+      - sh
+      - -c
+      - |
+        mkdir -p /data
+        touch /data/acme.json
+        chmod 600 /data/acme.json
+        chown 65532:65532 /data/acme.json
+    securityContext:
+      runAsNonRoot: false
+      runAsUser: 0
+    volumeMounts:
+      - name: traefik
+        mountPath: /data
+
+additionalArguments:
+  - "--certificatesresolvers.production.acme.caServer=https://acme-v02.api.letsencrypt.org/directory"
+  - "--certificatesresolvers.production.acme.email=devops+aij@webpoint.io"
+  - "--certificatesresolvers.production.acme.httpChallenge.entryPoint=web"
+  - "--certificatesresolvers.production.acme.storage=/data/acme.json"
+  - "--certificatesresolvers.staging.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory"
+  - "--certificatesresolvers.staging.acme.email=devops+aij@webpoint.io"
+  - "--certificatesresolvers.staging.acme.httpChallenge.entryPoint=web"
+  - "--certificatesresolvers.staging.acme.storage=/data/acme.json"
+
 # certResolvers:
 #   staging:
 #     acme:
@@ -18,15 +83,3 @@ entryPoints:
 #       caServer: "https://acme-v02.api.letsencrypt.org/directory"
 #       httpChallenge:
 #         entryPoint: web
-
-
-
-additionalArguments:
-  - "--certificatesresolvers.production.acme.caServer=https://acme-v02.api.letsencrypt.org/directory"
-  - "--certificatesresolvers.production.acme.email=devops+aij@webpoint.io"
-  - "--certificatesresolvers.production.acme.httpChallenge.entryPoint=web"
-  - "--certificatesresolvers.production.acme.storage=/data/acme.json"
-  - "--certificatesresolvers.staging.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory"
-  - "--certificatesresolvers.staging.acme.email=devops+aij@webpoint.io"
-  - "--certificatesresolvers.staging.acme.httpChallenge.entryPoint=web"
-  - "--certificatesresolvers.staging.acme.storage=/data/acme.json"

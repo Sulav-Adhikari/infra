@@ -1,18 +1,18 @@
 externalDatabase:
   host: mysql-primary
   port: 3306
-  user: ${database_user}
-  password: ${database_password}
-  database: ${database_name}
+  user: aloroot
+  password: passwordglo123
+  database: alo
 
 mariadb:
   enabled: false
 
-wordpressUsername: ${wp_admin_user}
-wordpressPassword: ${wp_admin_password}
-wordpressEmail: ${wp_admin_email}
-wordpressFirstName: ${wp_first_name}
-wordpressLastName: ${wp_last_name}
+wordpressUsername: aijadmin
+wordpressPassword: aijadmin123
+wordpressEmail: aijadmin@gmail.com
+wordpressFirstName: ai
+wordpressLastName: j
 
 
 persistence:
@@ -24,7 +24,7 @@ persistence:
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
   ## If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner
   ##
-  storageClass: ${storage_class_name}
+  storageClass: my-ebs-sc
   ## @param persistence.accessModes [array] Persistent Volume access modes
   ##
   accessModes:
@@ -53,27 +53,26 @@ persistence:
 
 
 service:
-  type: ${service_type}
+  type: ClusterIP
   ports:
     http: 80
     https: 443
 
 ingress:
   enabled: true
-  hostname: wordpress.${database_name}.internal.webpoint.io
+  hostname: wordpress.alo.internal.webpoint.io
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.tls.certresolver: production 
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 
-%{ if multisite_enable == "yes" }
+
 extraHosts:
-  - name: test.${database_name}.wp.np
+  - name: test.alo.wp.np
     path: /
 
 # multisite:
 #   enable: true
-#   host: "${database_name}.internal.webpoint.io"
+#   host: "alo.internal.webpoint.io"
 #   networkType: subdomain
 #   enableNipIoRedirect: false
-%{ endif }

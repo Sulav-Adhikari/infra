@@ -14,7 +14,6 @@ resource "kubernetes_secret" "sql_secrect" {
     mysql-password             = var.mysql_password
 
   }
-
   type = "Opaque"
 }
 
@@ -41,7 +40,7 @@ resource "kubernetes_storage_class" "ebs_gp2" {
 }
 
 
-#helm 
+# helm 
 
 resource "helm_release" "traefik" {
 
@@ -208,19 +207,19 @@ resource "kubernetes_job" "wordpress_deployment" {
 }
 
 
-# resource "helm_release" "wordpress_helm" {
-#   name             = "wordpress-${var.database_name}-${timestamp()}"
-#   chart            = "wordpress"
-#   namespace        = "kube-system"
-#   repository       = "https://charts.bitnami.com/bitnami" # Bitnami's Helm repo URL
-#   version          = "23.1.17"                             # Specify version from Bitnami
-#   create_namespace = true 
+resource "helm_release" "wordpress"{
+  name             = "wordpress-${var.database_name}"
+  chart            = "wordpress"
+  namespace        = "kube-system"
+  repository       = "https://charts.bitnami.com/bitnami" # Bitnami's Helm repo URL
+  version          = "23.1.17"                             # Specify version from Bitnami
+  create_namespace = true 
 
-#   values = [
-#     local_file.wordpress_values.content
-#   ]
+  values = [
+    local_file.wordpress_values.content
+  ]
 
-#   depends_on = [ local_file.wordpress_values, kubernetes_job.wordpress_deployment ]
+  depends_on = [ local_file.wordpress_values, kubernetes_job.wordpress_deployment ]
 
-# }
+}
 

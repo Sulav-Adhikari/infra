@@ -76,8 +76,6 @@ module "eks" {
   cluster_security_group_id = module.vpc.allow_local_all
 
   access_entries = var.access_entries
-
-
 }
 
 module "eks-addons" {
