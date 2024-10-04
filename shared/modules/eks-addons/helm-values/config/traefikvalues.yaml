@@ -10,6 +10,15 @@ ingressClass:
   isDefaultClass: true
 
 
+service:
+  enabled: true
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-name: "traefik-loadbalancer"
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "Environment=production,Team=devops"
+    # service.beta.kubernetes.io/aws-load-balancer-type: nlb  # Use NLB instead of CLB
+    # service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+
 # Security context for the main container
 securityContext:
   capabilities:

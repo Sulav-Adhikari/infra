@@ -87,22 +87,28 @@ module "eks-addons" {
   mysql_replication_password = var.mysql_replication_password
   mysql_replication_user     = var.mysql_replication_user
   mysql_password             = var.mysql_password
+  namespace = var.namespace
+  aws_region = var.aws_region
+
+  wordpress_configs = var.wordpress_configs
 
   #Wordpress
-  database_name     = var.database_name
-  database_user     = var.database_user
-  database_password = var.database_password
-  wp_admin_user     = var.wp_admin_user
-  wp_admin_password = var.wp_admin_password
-  wp_admin_email    = var.wp_admin_email
-  wp_first_name     = var.wp_first_name
-  wp_last_name      = var.wp_last_name
-  multisite_enable  = var.multisite_enable
+  # database_name     = var.database_name
+  # database_user     = var.database_user
+  # database_password = var.database_password
+  # wp_admin_user     = var.wp_admin_user
+  # wp_admin_password = var.wp_admin_password
+  # wp_admin_email    = var.wp_admin_email
+  # wp_first_name     = var.wp_first_name
+  # wp_last_name      = var.wp_last_name
+  # multisite_enable  = var.multisite_enable
+
+
   
   cluster_name               = module.eks.eks_cluster
   cluster_endpoint           = module.eks.cluster_endpoint
   certificate_authority_data = module.eks.certificate_authority_data
   
-  service_type = var.service_type
+  # service_type = var.service_type
 
 }

@@ -1,3 +1,14 @@
+variable "namespace" {
+  description = "Namespace"
+  type        = string
+}
+
+variable "aws_region" {
+  type = string
+}
+
+
+
 #### Mysql
 variable "mysql_root_user" {
   description = "my sql root user"
@@ -33,55 +44,20 @@ variable "mysql_password" {
 ### Worpress
 
 
-variable "database_name" {
-  description = "The database name"
-  type        = string
-}
-
-variable "database_user" {
-  description = "The admin username of the database"
-  type        = string
-}
-
-variable "database_password" {
-  description = "The admin password of the database"
-  type        = string
-}
-
-variable "wp_admin_user" {
-  description = "WordPress admin username"
-  type        = string
-}
-
-variable "wp_admin_password" {
-  description = "WordPress admin password"
-  type        = string
-}
-
-variable "wp_admin_email" {
-  description = "WordPress admin email"
-  type        = string
-}
-
-variable "wp_first_name" {
-  description = "WordPress admin first name"
-  type        = string
-}
-
-variable "wp_last_name" {
-  description = "WordPress admin last name"
-  type        = string
-}
-
-variable "multisite_enable" {
-  description = "Enable WordPress multi-site"
-  type        = string
-}
-
-variable "service_type" {
-  default = "service type for wordpress instance"
-  type    = string
-
+variable "wordpress_configs" {
+  description = "List of WordPress configurations"
+  type        = list(object({
+    database_name     = string
+    database_user     = string
+    database_password = string
+    wp_admin_user     = string
+    wp_admin_password = string
+    wp_admin_email    = string
+    wp_first_name     = string
+    wp_last_name      = string
+    multisite_enable  = string
+    service_type      = string
+  }))
 }
 
 
